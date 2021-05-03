@@ -14,7 +14,8 @@ Shader "Unlit/NewUnlitShader"
             CGPROGRAM
             #pragma vertex vert 
             #pragma fragment frag
-
+            #pragma require Barycentrics 
+            
             #include "UnityCG.cginc"
 
             struct appdata
@@ -27,6 +28,9 @@ Shader "Unlit/NewUnlitShader"
             {
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
+                #if defined(SHADER_STAGE_FRAGMENT)
+                float3 barycentricWeights : SV_Barycentrics; 
+                #endif
             };
             
             sampler2D _MainTex;
@@ -43,10 +47,12 @@ Shader "Unlit/NewUnlitShader"
             
             #pragma require Barycentrics
 
-            fixed4 frag (v2f i, float3 barycentricWeights : SV_Barycentrics) : SV_Target
+            #if defined(SHADER_STAGE_FRAGMENT)
+            fixed4 frag (v2f i) : SV_Target
             {
-                return float4(barycentricWeights, 1);
+                return float4(i.barycentricWeights, 1);
             }
+            #endif
             
             ENDCG
         }
