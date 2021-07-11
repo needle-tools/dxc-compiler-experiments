@@ -14,8 +14,9 @@ Shader "Unlit/NewUnlitShader"
             CGPROGRAM
             #pragma vertex vert 
             #pragma fragment frag
+            #pragma use_dxc 
             #pragma require Barycentrics 
-            
+            // #pragma exclude_renderers d3d11 
             #include "UnityCG.cginc"
 
             struct appdata
@@ -29,7 +30,7 @@ Shader "Unlit/NewUnlitShader"
                 float4 vertex : SV_POSITION;
                 float2 uv : TEXCOORD0;
                 #if defined(SHADER_STAGE_FRAGMENT)
-                float3 barycentricWeights : SV_Barycentrics; 
+                float3 barycentricWeights : SV_Barycentrics;
                 #endif
             };
             
@@ -44,8 +45,6 @@ Shader "Unlit/NewUnlitShader"
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 return o;
             }
-            
-            #pragma require Barycentrics
 
             #if defined(SHADER_STAGE_FRAGMENT)
             fixed4 frag (v2f i) : SV_Target
