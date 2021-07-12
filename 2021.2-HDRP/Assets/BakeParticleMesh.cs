@@ -16,7 +16,12 @@ public class BakeParticleMesh : MonoBehaviour
 
     private MeshFilter meshFilter;
     private MeshRenderer meshRenderer;
-    
+
+    private void OnEnable()
+    {
+        cache.Clear();
+    }
+
     void Update()
     {
         if (!target) return;
