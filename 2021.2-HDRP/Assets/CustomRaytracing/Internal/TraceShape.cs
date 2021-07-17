@@ -1,15 +1,11 @@
 using System;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
-using UnityEngine.NVIDIA;
-using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 
 [ExecuteAlways]
-public class CustomRTPass : MonoBehaviour
+public class TraceShape : MonoBehaviour
 {
-	public int textureWidth = 1024, textureHeight = 1024;
-	
 	public Color SkyColor = Color.blue;
 	public Color GroundColor = Color.gray;
 	
@@ -21,6 +17,8 @@ public class CustomRTPass : MonoBehaviour
 	private RenderTexture _accumulationTarget1;
 	private RenderTexture _accumulationTarget2;
 
+	// geometric "lens" to provide rays from
+	
 	// scene structure for raytracing
 	private RayTracingAccelerationStructure _rtas;
 
@@ -32,7 +30,6 @@ public class CustomRTPass : MonoBehaviour
 	private Matrix4x4 _cameraWorldMatrix;
 
 	private int _frameIndex;
-	public RenderLensTextures lensRenderer;
 
 	private void OnEnable()
 	{
@@ -40,7 +37,7 @@ public class CustomRTPass : MonoBehaviour
 
 		_camera = GetComponent<Camera>();
 
-		_dxrTarget = new RenderTexture(textureWidth, textureHeight, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
+		_dxrTarget = new RenderTexture(_camera.pixelWidth, _camera.pixelHeight, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
 		_dxrTarget.enableRandomWrite = true;
 		_dxrTarget.Create();
 		_dxrTarget.hideFlags = HideFlags.DontSave;
@@ -64,11 +61,7 @@ public class CustomRTPass : MonoBehaviour
 		UpdateParameters();		
 
 		_accumulationMaterial = new Material(Shader.Find("Hidden/Accumulation"));
-
-		// _nvidiaDevice = GraphicsDevice.CreateGraphicsDevice();
 	}
-
-	private GraphicsDevice _nvidiaDevice;
 
 	private void Update()
 	{
@@ -80,10 +73,9 @@ public class CustomRTPass : MonoBehaviour
 	private void Render()
 	{
 		// update parameters if camera moved
-		if(_cameraWorldMatrix != transform.localToWorldMatrix || this.GetHashCode() != lastHashCode)
+		if(_cameraWorldMatrix != _camera.transform.localToWorldMatrix)
 		{
 			UpdateParameters();
-			lastHashCode = this.GetHashCode();
 		}
 
 		// // update parameters manually. after material or scene change
@@ -92,8 +84,6 @@ public class CustomRTPass : MonoBehaviour
 		// 	UpdateParameters();			
 		// }
 	}
-
-	private int lastHashCode;
 
 	private void UpdateParameters()
 	{
@@ -171,16 +161,8 @@ public class CustomRTPass : MonoBehaviour
 		// Shader.SetGlobalBuffer(HDShaderIDs._LightDatasRT, lightCluster.GetLightDatas());
 		// Shader.SetGlobalBuffer(HDShaderIDs._EnvLightDatasRT, lightCluster.GetEnvLightDatas());
 
-		_rayTracingShader.SetFloat("_JitterAmount", resultTexture == ResultTexture.DxrTarget ? 0 : 1);
-		_rayTracingShader.SetBool("_UseLensData", lensRenderer && lensRenderer.isActiveAndEnabled);
-		if(lensRenderer) {
-			_rayTracingShader.SetMatrix("_DataProviderTransform", lensRenderer.transform.localToWorldMatrix);
-			_rayTracingShader.SetTexture("_PositionData", lensRenderer.lensPositionTex);
-			_rayTracingShader.SetTexture("_DirectionData", lensRenderer.lensDirectionTex);
-		}
-		
 		// start one thread for each pixel on screen
-		_rayTracingShader.Dispatch("MyRaygenShader", _dxrTarget.width, _dxrTarget.height, 1, _camera);
+		_rayTracingShader.Dispatch("MyRaygenShader", _camera.pixelWidth, _camera.pixelHeight, 1, _camera);
 
 		// update accumulation material
 		_accumulationMaterial.SetTexture("_CurrentFrame", _dxrTarget);
@@ -195,28 +177,6 @@ public class CustomRTPass : MonoBehaviour
 		_accumulationTarget1 = _accumulationTarget2;
 		_accumulationTarget2 = temp;
 
-		// // apply DLSS to the _dxrTarget
-		// var cmd = new CommandBuffer();
-		// var initData = new DLSSCommandInitializationData()
-		// {
-		// 	featureFlags = DLSSFeatureFlags.DoSharpening,
-		// 	inputRTHeight = (uint)_dxrTarget.height,
-		// 	inputRTWidth = (uint)_dxrTarget.width,
-		// 	outputRTWidth = (uint)(2 * _dxrTarget.width),
-		// 	outputRTHeight = (uint)(2 * _dxrTarget.height),
-		// 	quality = DLSSQuality.MaximumPerformance
-		// };
-		//
-		// var context = _nvidiaDevice.CreateFeature(cmd, initData);
-		// var textureTable = new DLSSTextureTable()
-		// {
-		// 	colorInput = _dxrTarget,
-		// 	colorOutput = null,
-		// 	depth = null,
-		// 	motionVectors = null,
-		// };
-		// _nvidiaDevice.ExecuteDLSS(cmd, context, new DLSSTextureTable());
-		
 		GetComponent<MeshRenderer>().sharedMaterial.mainTexture = resultTexture == ResultTexture.DxrTarget ? _dxrTarget : _accumulationTarget1;
 	}
 	

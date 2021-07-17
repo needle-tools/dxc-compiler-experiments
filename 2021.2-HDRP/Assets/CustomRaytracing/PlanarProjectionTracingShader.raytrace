@@ -16,6 +16,13 @@ float3 _CameraPos;
 int _RaysPerPixel;
 int _FrameIndex;
 
+bool _UseLensData;
+float _JitterAmount;
+Texture2D<float4> _PositionData;
+Texture2D<float4> _DirectionData;
+float4x4 _DataProviderTransform;
+SamplerState sampler_linear_clamp;
+
 #pragma max_recursion_depth 8
 
 [shader("raygeneration")]
@@ -34,22 +41,35 @@ void MyRaygenShader()
 
 	// get random uv inside current pixel
 	// this will give us anti-aliasing for free
-	float2 uv = ((float2)dispatchIdx + float2(nextRand(seed), nextRand(seed))) / (float2)launchDim;
+	float2 uv = ((float2)dispatchIdx + float2(0.5,0.5) + float2(nextRand(seed), nextRand(seed)) * _JitterAmount) / (float2)launchDim;
 	
     // let the fun begin
     // uv = pow(uv,2);
 
-	// translate screen uv to ray direction
-	float3 topHorizontalRayDir = lerp(_TopLeftFrustumDir, _TopRightFrustumDir, uv.x);
-	float3 bottomHorizontalRayDir = lerp(_BottomLeftFrustumDir, _BottomRightFrustumDir, uv.x);
-	float3 rayDir = normalize(lerp(bottomHorizontalRayDir, topHorizontalRayDir, uv.y));
-
-	// init ray decriptor
 	RayDesc rayDesc;
-	rayDesc.Origin = _CameraPos; // start at camera position
-	rayDesc.Direction = rayDir;
-	rayDesc.TMin = 0;
-	rayDesc.TMax = 100;
+    if(!_UseLensData)
+    {
+	    // translate screen uv to ray direction
+	    float3 topHorizontalRayDir = lerp(_TopLeftFrustumDir, _TopRightFrustumDir, uv.x);
+	    float3 bottomHorizontalRayDir = lerp(_BottomLeftFrustumDir, _BottomRightFrustumDir, uv.x);
+	    float3 rayDir = normalize(lerp(bottomHorizontalRayDir, topHorizontalRayDir, uv.y));
+
+	    // init ray decriptor
+	    rayDesc.Origin = _CameraPos; // start at camera position
+	    rayDesc.Direction = rayDir;
+	    rayDesc.TMin = 0;
+	    rayDesc.TMax = 100;
+    }
+    else {
+        float4 positionSample = _PositionData.SampleLevel(sampler_linear_clamp, uv, 0);
+        float4 directionSample = _DirectionData.SampleLevel(sampler_linear_clamp, uv, 0);
+        
+	    // init ray decriptor
+	    rayDesc.Origin = mul(_DataProviderTransform, float4(positionSample.xyz, 1)).xyz;
+	    rayDesc.Direction = mul(_DataProviderTransform, float4(directionSample.xyz, 0));
+	    rayDesc.TMin = 0;
+	    rayDesc.TMax = 100;
+    }
 
 	// Create and init the ray payload
 	RayPayload rayPayload;
