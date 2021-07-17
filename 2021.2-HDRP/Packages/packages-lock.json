@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.needle.shader-variant-explorer": {
+      "version": "0.2.3",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://package.openupm.com"
+    },
     "com.pathightree.spacenavigator-driver": {
       "version": "2.0.0-beta.7",
       "depth": 0,
@@ -218,6 +225,12 @@
       "dependencies": {}
     },
     "com.unity.modules.jsonserialize": {
+      "version": "1.0.0",
+      "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.nvidia": {
       "version": "1.0.0",
       "depth": 0,
       "source": "builtin",

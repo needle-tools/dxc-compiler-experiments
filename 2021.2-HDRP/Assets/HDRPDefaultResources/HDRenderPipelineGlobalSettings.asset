@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781cc897cf8675041a751163b51f97dd, type: 3}
   m_Name: HDRenderPipelineGlobalSettings
   m_EditorClassIdentifier: 
-  m_DefaultVolumeProfile: {fileID: 11400000, guid: 68acd2ae84e651246a91165f2ecdc3a9,
+  m_DefaultVolumeProfile: {fileID: 11400000, guid: a1aa12d92dad1d246b36fb3287b2e88b,
     type: 2}
   m_LookDevVolumeProfile: {fileID: 11400000, guid: 4c5863f93f97bc6448bef00b605d45f3,
     type: 2}
