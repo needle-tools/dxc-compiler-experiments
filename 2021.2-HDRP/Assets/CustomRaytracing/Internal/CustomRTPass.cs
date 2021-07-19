@@ -73,6 +73,7 @@ public class CustomRTPass : MonoBehaviour
 	private void Update()
 	{
 		Render();
+		_rtas.Build();
 		DispatchRays();
 	}
 
@@ -98,7 +99,7 @@ public class CustomRTPass : MonoBehaviour
 	private void UpdateParameters()
 	{
 		// update raytracing scene, in case something moved
-		_rtas.Build();
+		// _rtas.Build();
 
 		// frustum corners for current camera transform
 		Vector3 bottomLeft = _camera.ViewportToWorldPoint(new Vector3(0, 0, _camera.farClipPlane)).normalized;
@@ -135,10 +136,11 @@ public class CustomRTPass : MonoBehaviour
 
 		_rtas = new RayTracingAccelerationStructure(settings);
 		
+		// not necessary in automatic mode
 		// collect all objects in scene and add them to raytracing scene
-		Renderer[] renderers = FindObjectsOfType<Renderer>();
-		foreach(Renderer r in renderers)
-			_rtas.AddInstance(r);
+		// Renderer[] renderers = FindObjectsOfType<Renderer>();
+		// foreach(Renderer r in renderers)
+		// 	_rtas.AddInstance(r);
 
 		// build raytracing scene
 		_rtas.Build();
@@ -177,6 +179,11 @@ public class CustomRTPass : MonoBehaviour
 			_rayTracingShader.SetMatrix("_DataProviderTransform", lensRenderer.transform.localToWorldMatrix);
 			_rayTracingShader.SetTexture("_PositionData", lensRenderer.lensPositionTex);
 			_rayTracingShader.SetTexture("_DirectionData", lensRenderer.lensDirectionTex);
+		}
+		else
+		{
+			_rayTracingShader.SetTexture("_PositionData", Texture2D.whiteTexture);
+			_rayTracingShader.SetTexture("_DirectionData", Texture2D.whiteTexture);
 		}
 		
 		// start one thread for each pixel on screen
