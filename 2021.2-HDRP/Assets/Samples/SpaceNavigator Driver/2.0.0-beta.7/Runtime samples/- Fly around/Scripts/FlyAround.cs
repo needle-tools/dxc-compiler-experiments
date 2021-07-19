@@ -4,7 +4,10 @@ using SpaceNavigatorDriver;
 public class FlyAround : MonoBehaviour {
 	public bool HorizonLock = true;
 
-	public void Update () {
+	public void Update ()
+	{
+		if (SpaceNavigatorHID.current == null) return;
+	
 		transform.Translate(SpaceNavigatorHID.current.Translation.ReadValue(), Space.Self);
 
 		if (HorizonLock) {

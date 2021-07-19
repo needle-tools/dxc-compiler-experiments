@@ -645,7 +645,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &301621179
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -903,11 +903,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78d47cc4b30fdba42954bd50d3d34b17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  textureWidth: 1024
+  textureHeight: 1024
   SkyColor: {r: 0, g: 0, b: 1, a: 1}
   GroundColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   _dxrTarget: {fileID: 0}
   _rayTracingShader: {fileID: 4807578003741378534, guid: dde21dd0ef814a444bdaa9989cf25e6d,
     type: 3}
+  lensRenderer: {fileID: 0}
+  resultTexture: 0
 --- !u!1 &331848345
 GameObject:
   m_ObjectHideFlags: 0
@@ -11708,7 +11712,7 @@ Light:
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 1
-  m_BoundingSphereOverride: {x: 1.8e-43, y: NaN, z: 2.3509887e-38, w: -6.617849e-24}
+  m_BoundingSphereOverride: {x: 5.7e-43, y: 2.028349e-36, z: 5.69e-43, w: 9.403955e-38}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
@@ -16966,6 +16970,7 @@ GameObject:
   - component: {fileID: 963194229}
   - component: {fileID: 963194230}
   - component: {fileID: 963194231}
+  - component: {fileID: 963194232}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -17169,7 +17174,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: af1a4ffa8139e0d4dacc81af24067546, type: 3}
   m_Name: 
@@ -17190,6 +17195,22 @@ MonoBehaviour:
   secondsToNextChange: 1
   fractionDeltaStep: 0.1
   scale: 0.5
+--- !u!114 &963194232
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb0dbb824da61dd42902e1f2d43a1254, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  map: {fileID: -944628639613478452, guid: 8ddf0ad975d10dd4d83fc93da355e08a, type: 3}
+  movementSpeed: 5
+  rotationSpeed: 100
+  HorizonLock: 1
 --- !u!1 &997146083
 GameObject:
   m_ObjectHideFlags: 0
